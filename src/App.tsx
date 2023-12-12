@@ -1,17 +1,31 @@
-import { Button } from "@/components/ui/button";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
+
+import { Button } from "@/components/ui/button";
 import { Title } from "@/styles";
 
 function App() {
   const numbers = useQuery(api.myFunctions.listNumbers, { count: 10 });
   const addNumber = useMutation(api.myFunctions.addNumber);
+  const { loginWithRedirect, isAuthenticated, logout } = useAuth0();
+  const handleLoginClick = () => loginWithRedirect();
 
   return (
     <main>
       <Title className="text-4xl font-extrabold my-8 text-center">
         Convex + React (Vite)
       </Title>
+      {!isAuthenticated && <button onClick={handleLoginClick}>Log in</button>}
+      {isAuthenticated && (
+        <button
+          onClick={() =>
+            logout({ logoutParams: { returnTo: window.location.origin } })
+          }
+        >
+          Log out
+        </button>
+      )}
       <p>
         Click the button and open this page in another window - this data is
         persisted in the Convex cloud database!
