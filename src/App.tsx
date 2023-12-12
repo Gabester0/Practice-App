@@ -1,5 +1,11 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { useMutation, useQuery } from "convex/react";
+import {
+  Authenticated,
+  AuthLoading,
+  Unauthenticated,
+  useMutation,
+  useQuery,
+} from "convex/react";
 import { api } from "../convex/_generated/api";
 
 import { Button } from "@/components/ui/button";
@@ -8,14 +14,22 @@ import { Title } from "@/styles";
 function App() {
   const numbers = useQuery(api.myFunctions.listNumbers, { count: 10 });
   const addNumber = useMutation(api.myFunctions.addNumber);
-  const { loginWithRedirect, isAuthenticated, logout } = useAuth0();
+  const { loginWithRedirect, isAuthenticated, logout, user } = useAuth0();
   const handleLoginClick = () => loginWithRedirect();
-
   return (
     <main>
       <Title className="text-4xl font-extrabold my-8 text-center">
         Convex + React (Vite)
       </Title>
+      <Authenticated>
+        Logged in as {user?.nickname || user?.name}{" "}
+        {/* <img
+          src={user?.picture || "http://placekitten.com/100/100"}
+          alt="Meow"
+        /> */}
+      </Authenticated>
+      <Unauthenticated>Logged out</Unauthenticated>
+      <AuthLoading>Still loading</AuthLoading>
       {!isAuthenticated && <button onClick={handleLoginClick}>Log in</button>}
       {isAuthenticated && (
         <button
