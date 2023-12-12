@@ -1,17 +1,45 @@
-import { Button } from "@/components/ui/button";
-import { useMutation, useQuery } from "convex/react";
+import { useAuth0 } from "@auth0/auth0-react";
+import {
+  Authenticated,
+  AuthLoading,
+  Unauthenticated,
+  useMutation,
+  useQuery,
+} from "convex/react";
 import { api } from "../convex/_generated/api";
-import { Link } from "@/components/typography/link";
+
+import { Button } from "@/components/ui/button";
+import { Title } from "@/styles";
 
 function App() {
   const numbers = useQuery(api.myFunctions.listNumbers, { count: 10 });
   const addNumber = useMutation(api.myFunctions.addNumber);
-
+  const { loginWithRedirect, isAuthenticated, logout, user } = useAuth0();
+  const handleLoginClick = () => loginWithRedirect();
   return (
-    <main className="container max-w-2xl flex flex-col gap-8">
-      <h1 className="text-4xl font-extrabold my-8 text-center">
+    <main>
+      <Title className="text-4xl font-extrabold my-8 text-center">
         Convex + React (Vite)
-      </h1>
+      </Title>
+      <Authenticated>
+        Logged in as {user?.nickname || user?.name}{" "}
+        {/* <img
+          src={user?.picture || "http://placekitten.com/100/100"}
+          alt="Meow"
+        /> */}
+      </Authenticated>
+      <Unauthenticated>Logged out</Unauthenticated>
+      <AuthLoading>Still loading</AuthLoading>
+      {!isAuthenticated && <button onClick={handleLoginClick}>Log in</button>}
+      {isAuthenticated && (
+        <button
+          onClick={() =>
+            logout({ logoutParams: { returnTo: window.location.origin } })
+          }
+        >
+          Log out
+        </button>
+      )}
       <p>
         Click the button and open this page in another window - this data is
         persisted in the Convex cloud database!
@@ -32,24 +60,16 @@ function App() {
           : numbers?.join(", ") ?? "..."}
       </p>
       <p>
-        Edit{" "}
-        <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-          convex/myFunctions.ts
-        </code>{" "}
-        to change your backend
+        Edit <code>convex/myFunctions.ts</code> to change your backend
       </p>
       <p>
-        Edit{" "}
-        <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-          src/App.tsx
-        </code>{" "}
-        to change your frontend
+        Edit <code>src/App.tsx</code> to change your frontend
       </p>
       <p>
         Check out{" "}
-        <Link target="_blank" href="https://docs.convex.dev/home">
+        <a target="_blank" href="https://docs.convex.dev/home">
           Convex docs
-        </Link>
+        </a>
       </p>
     </main>
   );
